@@ -33,15 +33,15 @@ services:
       - internal
 
 # ── FRONTEND ─────────────────────────────────────────────
-  frontend:
-    build: ./frontend
-    restart: unless-stopped
-    networks:
-      - public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`app.localhost`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+  # frontend:
+  #   build: ./frontend
+  #   restart: unless-stopped
+  #   networks:
+  #     - public
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.frontend.rule=Host(`app.localhost`)"
+  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
 # ── BACKEND SERVICES ─────────────────────────────────────
   auth-service:
