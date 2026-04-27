@@ -1,0 +1,70 @@
+global:
+  scrape_interval: 15s       # как часто собирать метрики
+  evaluation_interval: 15s   # как часто вычислять правила алертов
+  external_labels:
+    project: "stock-analysis"
+    env: "dev"
+
+# ── ПРАВИЛА АЛЕРТОВ ────────────────────────────────────────
+rule_files:
+  - /etc/prometheus/alerts/*.yml   # если появятся правила — кладёте сюда
+
+# ── СБОР МЕТРИК ────────────────────────────────────────────
+scrape_configs:
+
+  # Prometheus сам себя мониторит
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ── TRAEFIK ──────────────────────────────────────────────
+  - job_name: "traefik"
+    static_configs:
+      - targets: ["traefik:8080"]
+    metrics_path: /metrics
+
+  # ── BACKEND СЕРВИСЫ ──────────────────────────────────────
+  # Каждый FastAPI-сервис должен отдавать /metrics (через prometheus-fastapi-instrumentator)
+  - job_name: "auth-service"
+    static_configs:
+      - targets: ["auth-service:8000"]
+    metrics_path: /metrics
+
+  - job_name: "market-service"
+    static_configs:
+      - targets: ["market-service:8000"]
+    metrics_path: /metrics
+
+  - job_name: "technical-service"
+    static_configs:
+      - targets: ["technical-service:8000"]
+    metrics_path: /metrics
+
+  - job_name: "fundamental-service"
+    static_configs:
+      - targets: ["fundamental-service:8000"]
+    metrics_path: /metrics
+
+  - job_name: "portfolio-service"
+    static_configs:
+      - targets: ["portfolio-service:8000"]
+    metrics_path: /metrics
+
+  - job_name: "notification-service"
+    static_configs:
+      - targets: ["notification-service:8000"]
+    metrics_path: /metrics
+
+  # ── БАЗЫ ДАННЫХ И ИНФРА ──────────────────────────────────
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]  # postgres-exporter из вашего docker-compose
+
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]     # нужно добавить redis-exporter в docker-compose (см. ниже)
+
+  - job_name: "rabbitmq"
+    static_configs:
+      - targets: ["rabbitmq:15692"]          # встроенный prometheus-плагин RabbitMQ
+    metrics_path: /metrics

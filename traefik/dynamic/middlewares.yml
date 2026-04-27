@@ -1,0 +1,38 @@
+http:
+  middlewares:
+
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
+
+
+    cors-headers:
+      headers:
+        accessControlAllowOriginList:
+          - "https://app.localhost"
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "PATCH"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Authorization"
+          - "Content-Type"
+        accessControlMaxAge: 86400
+
+    basic-auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$..."
+
+    jwt-auth:
+      forwardAuth:
+        address: "http://auth-service:8000/api/v1/auth/verify"
+        authResponseHeaders:
+          - "X-User-ID"
+          - "X-User-Role"
+        trustForwardHeader: true

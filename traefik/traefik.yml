@@ -1,0 +1,29 @@
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+    http:
+      tls: {}
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: stock-analysis_internal
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+log:
+  level: INFO
+
+accessLog: {}
