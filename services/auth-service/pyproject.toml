@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.18.4",
     "asyncpg>=0.31.0",
     "authlib>=1.7.0",
+    "bcrypt>=5.0.0",
     "fastapi>=0.136.0",
     "httpx>=0.28.1",
     "prometheus-fastapi-instrumentator>=7.1.0",
