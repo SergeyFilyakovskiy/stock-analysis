@@ -1,5 +1,6 @@
 name: stock-analysis
 
+
 networks:
   public:
     driver: bridge
@@ -7,12 +8,14 @@ networks:
     driver: bridge
     internal: true
 
+
 volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
   prometheus_data:
   grafana_data:
+
 
 services:
 # ── API GATEWAY ──────────────────────────────────────────
@@ -27,10 +30,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./traefik/certs:/certificates:ro 
+      - ./traefik/certs:/certificates:ro
     networks:
       - public
       - internal
+
 
 # ── FRONTEND ─────────────────────────────────────────────
   # frontend:
@@ -43,16 +47,12 @@ services:
   #     - "traefik.http.routers.frontend.rule=Host(`app.localhost`)"
   #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
+
 # ── BACKEND SERVICES ─────────────────────────────────────
   auth-service:
     build: ./services/auth-service
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@timescaledb:5432/auth_db  
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${JWT_SECRET_KEY}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+    env_file: .env
     depends_on:
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -64,15 +64,11 @@ services:
       - "traefik.http.routers.auth.middlewares=rate-limit,cors-headers"
       - "traefik.http.services.auth.loadbalancer.server.port=8000"
 
+
   market-service:
     build: ./services/market-service
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@timescaledb:5432/market_db
-      - REDIS_URL=redis://redis:6379/1
-      - RABBITMQ_URL=amqp://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/  
-      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
-      - POLYGON_API_KEY=${POLYGON_API_KEY}
+    env_file: .env
     depends_on:
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -83,14 +79,13 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.market.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/market`)"
       - "traefik.http.routers.market.middlewares=rate-limit,cors-headers,jwt-auth"
-      - "traefik.http.services.market.loadbalancer.server.port=8000"   
+      - "traefik.http.services.market.loadbalancer.server.port=8000"
+
 
   technical-service:
     build: ./services/technical-service
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@timescaledb:5432/analysis_db
-      - REDIS_URL=redis://redis:6379/2
+    env_file: .env
     depends_on:
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -100,15 +95,13 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.technical.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/technical`)"
       - "traefik.http.routers.technical.middlewares=rate-limit,cors-headers,jwt-auth"
-      - "traefik.http.services.technical.loadbalancer.server.port=8000"  
+      - "traefik.http.services.technical.loadbalancer.server.port=8000"
+
 
   fundamental-service:
     build: ./services/fundamental-service
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@timescaledb:5432/analysis_db
-      - REDIS_URL=redis://redis:6379/3
-      - RABBITMQ_URL=amqp://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+    env_file: .env
     depends_on:
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -117,17 +110,15 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.fundamental.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/fundamental`)"  
+      - "traefik.http.routers.fundamental.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/fundamental`)"
       - "traefik.http.routers.fundamental.middlewares=rate-limit,cors-headers,jwt-auth"
-      - "traefik.http.services.fundamental.loadbalancer.server.port=8000"  
+      - "traefik.http.services.fundamental.loadbalancer.server.port=8000"
+
 
   portfolio-service:
     build: ./services/portfolio-service
     restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@timescaledb:5432/portfolio_db
-      - REDIS_URL=redis://redis:6379/4
-      - RABBITMQ_URL=amqp://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+    env_file: .env
     depends_on:
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -137,15 +128,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portfolio.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/portfolio`)"
-      - "traefik.http.routers.portfolio.middlewares=rate-limit,cors-headers,jwt-auth"  
-      - "traefik.http.services.portfolio.loadbalancer.server.port=8000" 
+      - "traefik.http.routers.portfolio.middlewares=rate-limit,cors-headers,jwt-auth"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=8000"
+
 
   notification-service:
     build: ./services/notification-service
     restart: unless-stopped
-    environment:
-      - REDIS_URL=redis://redis:6379/5
-      - RABBITMQ_URL=amqp://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+    env_file: .env
     depends_on:
       redis: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }
@@ -155,7 +145,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.ws.rule=Host(`api.localhost`) && PathPrefix(`/ws`)"
       - "traefik.http.routers.ws.middlewares=cors-headers"
-      - "traefik.http.services.ws.loadbalancer.server.port=8000"  
+      - "traefik.http.services.ws.loadbalancer.server.port=8000"
+
+
 # ── DATABASES ────────────────────────────────────────────
   timescaledb:
     image: timescale/timescaledb-ha:pg16-all
@@ -185,6 +177,7 @@ services:
         limits:
           memory: 2G
 
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -208,6 +201,7 @@ services:
       timeout: 5s
       retries: 5
 
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     command: >
@@ -230,6 +224,7 @@ services:
       timeout: 10s
       retries: 5
 
+
 # ── OBSERVABILITY ────────────────────────────────────────
   redis-exporter:
     image: oliver006/redis_exporter:latest
@@ -242,6 +237,7 @@ services:
     depends_on:
       redis: { condition: service_healthy }
 
+
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
     restart: unless-stopped
@@ -251,6 +247,7 @@ services:
       - internal
     depends_on:
       timescaledb: { condition: service_healthy }
+
 
   prometheus:
     image: prom/prometheus:latest
@@ -265,6 +262,7 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
       - "traefik.http.routers.prometheus.middlewares=basic-auth"
+
 
   grafana:
     image: grafana/grafana:latest
