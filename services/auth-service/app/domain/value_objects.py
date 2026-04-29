@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import bcrypt
 import re
 
@@ -63,3 +63,18 @@ class Role:
     
     def __str__(self)-> str:
         return self.value
+    
+@dataclass
+class UserProfile:
+    """value-object для сущности User"""
+    
+    first_name: str
+    last_name: str
+    avatar_url: str | None = None
+    bio: str | None = None
+
+    def update(self, **kwargs)-> None:
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                object.__setattr__(self, key, value)
+
