@@ -85,10 +85,11 @@ class UserORM(Base):
         )
     
     profile: Mapped['ProfileORM'] = relationship(
-        "Profile",
+        "ProfileORM",
         back_populates="user",
         uselist=False,
         lazy="joined",
+        cascade="all, delete-orphan"
     )
 
     oauth_accounts: Mapped['OAuthAccountORM'] = relationship(
@@ -96,6 +97,7 @@ class UserORM(Base):
         back_populates="user",
         uselist=False,
         lazy="joined",
+        cascade="all, delete-orphan"
         )
 
 class ProfileORM(Base):
@@ -105,6 +107,12 @@ class ProfileORM(Base):
     """
 
     __tablename__ = 'profiles'
+
+    id: Mapped[uuid.UUID] =  mapped_column(
+        UUID, 
+        primary_key=True, 
+        default=uuid.uuid4
+    )
 
     first_name: Mapped[str] = mapped_column(
         String
@@ -123,12 +131,13 @@ class ProfileORM(Base):
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey('users.id'),
-        unique=True
+        ForeignKey('users.id', ondelete='CASCADE'),
+        unique=True,
+        nullable=False
     )
 
     user: Mapped['UserORM'] = relationship(
-        "User",
+        "UserORM",
         back_populates="profile",
         uselist=False
     )
@@ -144,7 +153,7 @@ class OAuthAccountORM(Base):
         )
     
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey('users.id'),
+        ForeignKey('users.id', ondelete='CASCADE'),
         unique=True
     )
 
@@ -186,6 +195,7 @@ class OAuthAccountORM(Base):
     user = relationship(
         'UserORM', 
         back_populates="oauth_accounts",
+        uselist=False
         )
 
     __table_args__ = (
