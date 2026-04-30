@@ -2,27 +2,41 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
-from app.infrastructure.cache.redis_client import get_redis, close_redis
+from starlette.middleware.sessions import SessionMiddleware
+
+from app.api.v1.routers import v1_router
+from app.core.config import settings
+from app.infrastructure.cache.redis_client import close_redis, get_redis
 from app.infrastructure.db.session import engine
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
     await get_redis()
     yield
-    # shutdown
     await close_redis()
     await engine.dispose()
 
+
 app = FastAPI(
-    root_path='/auth-service',
-    version='0.1.0',
-    title='Authentication Service',
-    lifespan=lifespan
+    root_path="/auth-service",
+    version="0.1.0",
+    title="Authentication Service",
+    lifespan=lifespan,
 )
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.jwt_secret.get_secret_value(),
+    https_only=False,
+    max_age=300,
+)
+
+app.include_router(v1_router)
 
 Instrumentator().instrument(app).expose(app)
 
-@app.get('/')
+
+@app.get("/")
 async def health():
-    return {'status':'health'}
+    return {"status": "healthy"}

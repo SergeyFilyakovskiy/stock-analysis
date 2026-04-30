@@ -16,7 +16,7 @@ from app.application.services.token_service import TokenService
 
 
 MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_TTL         = 300  # 5 минут
+LOCKOUT_TTL         = 300
 
 
 @dataclass

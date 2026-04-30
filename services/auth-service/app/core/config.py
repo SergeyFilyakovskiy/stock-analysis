@@ -29,6 +29,13 @@ class Config(BaseSettings):
     redis_port: str = Field(validation_alias='REDIS_PORT')
     redis_db: str = Field(validation_alias='REDIS_AUTH_DB')
 
+    google_client_id: str = Field(validation_alias='GOOGLE_CLIENT_ID')
+    google_client_secret: SecretStr = Field(validation_alias='GOOGLE_CLIENT_SECRET')
+
+    github_client_id: str = Field(validation_alias='GITHUB_CLIENT_ID')
+    github_client_secret: SecretStr = Field(validation_alias='GITHUB_CLIENT_SECRET')
+
+
     @property
     def db_async_url(self) -> str:
         return (
