@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from uuid import UUID
-from app.domain.entities import User, OAuthAccount
+from app.domain.entities import User, OAuthAccount, UserProfile
 
 
 class IUserRepo(ABC):
@@ -61,4 +61,12 @@ class IUserRepo(ABC):
         user_id: UUID,
     ) -> None:
         """Отвязать провайдера от аккаунта"""
+        ...
+
+    @abstractmethod
+    async def get_profile(self, user_id: UUID) -> UserProfile | None: 
+        ...
+
+    @abstractmethod
+    async def update_profile(self, user_id: UUID, profile: UserProfile) -> None: 
         ...

@@ -77,4 +77,11 @@ class UserProfile:
         for key, value in kwargs.items():
             if hasattr(self, key):
                 object.__setattr__(self, key, value)
+    
+    @property
+    def full_name(self) -> str | None:
+        
+        if self.first_name or self.last_name:
+            return f"{self.first_name or ''} {self.last_name or ''}".strip()
+        return None
 
