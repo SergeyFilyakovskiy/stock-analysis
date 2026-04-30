@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
+from enum import StrEnum
 import bcrypt
 import re
 
@@ -22,7 +23,7 @@ class Email:
 @dataclass(frozen=True)
 class HashedPassword:
 
-    password: str
+    value: str
 
     @staticmethod
     def from_plain(plain: str) -> HashedPassword:
@@ -36,15 +37,26 @@ class HashedPassword:
         return HashedPassword(hashed.decode())
         
     @staticmethod
-    def from_hashed(hashed: str)-> HashedPassword:
+    def from_hash(hashed: str)-> HashedPassword:
         return HashedPassword(hashed)
     
     def verify(self, plain: str)-> bool:
-        return bcrypt.checkpw(plain.encode(), self.password.encode())
+        return bcrypt.checkpw(plain.encode(), self.value.encode())
     
     def __repr__(self) -> str:
         return "HashedPassword"
     
+
+class RoleEnum(StrEnum):
+    
+    """
+    Список всех ролей в БД
+    """
+    
+    ADMIN = 'admin'
+    USER = 'user'
+
+
 @dataclass(frozen=True)
 class Role:
 
@@ -61,6 +73,11 @@ class Role:
     def is_admin(self) -> bool:
         return self.value == self.ADMIN
     
+    @property
+    def as_enum(self) -> RoleEnum:
+        """Для передачи в ORM где ожидается Enum"""
+        return RoleEnum(self.value)
+    
     def __str__(self)-> str:
         return self.value
     
@@ -68,8 +85,8 @@ class Role:
 class UserProfile:
     """value-object для сущности User"""
     
-    first_name: str
-    last_name: str
+    first_name: str | None = None
+    last_name: str | None = None
     avatar_url: str | None = None
     bio: str | None = None
 

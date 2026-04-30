@@ -3,10 +3,11 @@
 """
 import uuid
 from datetime import datetime
-from enum import StrEnum
-from sqlalchemy import Boolean, ForeignKey, String, DateTime, UUID, UniqueConstraint,func
+from sqlalchemy import Boolean, Enum, ForeignKey, String, DateTime, UUID, UniqueConstraint,func
 from sqlalchemy.orm import mapped_column, Mapped, relationship, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
+
+from app.domain.value_objects import RoleEnum
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -18,19 +19,6 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     """
     __abstract__ = True #для того чтобы не создавалась таблица для этого класса
-
-
-    
-               
-
-class RoleEnum(StrEnum):
-    
-    """
-    Список всех ролей в БД
-    """
-    
-    ADMIN = 'admin'
-    USER = 'user'
 
 
 class UserORM(Base):
@@ -53,12 +41,13 @@ class UserORM(Base):
         nullable= False
     )
 
-    hashed_password: Mapped[str] = mapped_column(
+    hashed_password: Mapped[str | None] = mapped_column(
         String,
-        nullable= False
+        nullable= True
     )
 
     role: Mapped[RoleEnum] = mapped_column(
+        Enum(RoleEnum),
         default= RoleEnum.USER,
         nullable= False
     )
@@ -114,11 +103,11 @@ class ProfileORM(Base):
         default=uuid.uuid4
     )
 
-    first_name: Mapped[str] = mapped_column(
+    first_name: Mapped[str | None] = mapped_column(
         String
     )
 
-    last_name: Mapped[str] = mapped_column(
+    last_name: Mapped[str | None] = mapped_column(
         String
     )
 
@@ -172,17 +161,17 @@ class OAuthAccountORM(Base):
         nullable=False
         )
     
-    access_token: Mapped[str] = mapped_column(
+    access_token: Mapped[str | None] = mapped_column(
         String(2048),
         nullable=True
         )
     
-    refresh_token: Mapped[str] = mapped_column(
+    refresh_token: Mapped[str | None] = mapped_column(
         String(2048), 
         nullable=True
         )
     
-    expires_at: Mapped[datetime] = mapped_column(
+    expires_at: Mapped[datetime | None] = mapped_column(
         DateTime, 
         nullable=True
         )
