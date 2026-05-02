@@ -41,6 +41,7 @@ class TokenService:
             "sub":  str(user.id),
             "type": "refresh",
             "iat":  now,
+            "jti":  str(uuid.uuid4()),
             "exp":  now + timedelta(seconds=settings.jwt_refresh_expire),
         }
         return jwt.encode(

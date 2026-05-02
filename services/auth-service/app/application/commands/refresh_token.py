@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from uuid import UUID
 
 from app.application.dto import TokenPairDTO
 from app.application.services.token_service import TokenService
@@ -34,7 +35,7 @@ class RefreshTokenHandler:
         if payload.get("type") != "refresh":
             raise InvalidTokenError("Not a refresh token")
 
-        user_id = payload["sub"]
+        user_id = UUID(payload["sub"])
 
         # 2. Проверяем что токен совпадает с сохранённым в Redis
         #    Защита от повторного использования украденного токена

@@ -3,7 +3,7 @@ from pydantic.types import SecretStr
 from pydantic import Field
 from pathlib import Path
 
-ENV_FILE = Path(__file__).parent.parent.parent.parent / ".env"
+ENV_FILE = Path(__file__).parent.parent.parent.parent.parent / ".env"
 
 class Config(BaseSettings):
 

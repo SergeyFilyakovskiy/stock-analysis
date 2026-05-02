@@ -15,8 +15,8 @@ class User:
     hashed_password:    HashedPassword | None = None
     is_active:          bool = True
     is_verified:        bool = False
-    created_at:         datetime = field(default_factory=datetime.now(timezone.utc)) # type: ignore
-    updated_at:         datetime = field(default_factory=datetime.now(timezone.utc)) # type: ignore
+    created_at:         datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at:         datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def change_email(self, new_email: str) -> None:
         object.__setattr__(self, 'email', Email(new_email))

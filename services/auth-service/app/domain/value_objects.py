@@ -14,7 +14,7 @@ class Email:
             raise TypeError("Email must be a sting")
         normalized = self.value.strip().lower()
         if not re.match(r'^[\w.+-]+@[\w-]+\.[a-z]{2,}$', normalized):
-            raise ValueError(f"Incorrect email format: {self.value}")
+            raise ValueError(f"Invalid email format: {self.value}")
         object.__setattr__(self, 'value', normalized)
 
     def __str__(self) -> str:
@@ -44,7 +44,7 @@ class HashedPassword:
         return bcrypt.checkpw(plain.encode(), self.value.encode())
     
     def __repr__(self) -> str:
-        return "HashedPassword"
+        return "HashedPassword(value=***)"
     
 
 class RoleEnum(StrEnum):
