@@ -131,3 +131,17 @@ def get_market_data_service(
 
 # Удобный алиас для эндпоинтов
 ServiceDep = Annotated[MarketDataService, Depends(get_market_data_service)]
+
+
+#GRPC
+from app.grpc.servicer import MarketServicer
+
+
+def get_grpc_servicer(
+    get_ohlcv:      Annotated[GetOHLCVHandler,      Depends(get_ohlcv_handler)],
+    get_last_price: Annotated[GetLastPriceHandler,   Depends(get_last_price_handler)],
+) -> MarketServicer:
+    return MarketServicer(
+        get_ohlcv_handler=get_ohlcv,
+        get_last_price_handler=get_last_price,
+    )

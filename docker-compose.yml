@@ -69,6 +69,8 @@ services:
     build: ./services/market-service
     restart: unless-stopped
     env_file: .env
+    expose:
+      - "50051"
     depends_on:
       market-migrate:
         condition: service_completed_successfully

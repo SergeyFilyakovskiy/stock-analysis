@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package market;
+
+service MarketService {
+  rpc GetOHLCV (OHLCVRequest) returns (OHLCVResponse);
+  rpc GetLastPrice (LastPriceRequest) returns (LastPriceResponse);
+}
+
+message OHLCVRequest {
+  string ticker   = 1;
+  string from_dt  = 2;  // ISO 8601: "2024-01-01T00:00:00"
+  string to_dt    = 3;
+  string interval = 4;  // "1m" | "5m" | "1h" | "1d"
+}
+
+message PriceBar {
+  string time   = 1;
+  string ticker = 2;
+  string open   = 3;
+  string high   = 4;
+  string low    = 5;
+  string close  = 6;
+  int64  volume = 7;
+}
+
+message OHLCVResponse {
+  string          ticker   = 1;
+  string          interval = 2;
+  repeated PriceBar bars   = 3;
+}
+
+message LastPriceRequest {
+  string ticker = 1;
+}
+
+message LastPriceResponse {
+  string ticker = 1;
+  string price  = 2;
+}
