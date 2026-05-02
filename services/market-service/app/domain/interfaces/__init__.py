@@ -1,0 +1,2 @@
+from app.domain.interfaces.i_market_repo import IMarketRepository
+from app.domain.interfaces.i_market_data_provider import IMarketDataProvider
