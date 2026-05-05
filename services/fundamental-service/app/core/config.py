@@ -32,16 +32,6 @@ class Config(BaseSettings):
     POLYGON_KEY: SecretStr = Field(validation_alias='POLYGON_KEY')
     ALPHA_VANTAGE_KEY: SecretStr = Field(validation_alias='ALPHA_VANTAGE_KEY')
 
-    PRICE_FETCH_INTERVAL_SECONDS: int = Field(validation_alias='PRICE_FETCH_INTERVAL_SECONDS')
-
-    grpc_market_target: str = Field(
-        default="market-service:50051",
-        validation_alias="GRPC_MARKET_TARGET"
-    )
-    cache_ttl: int = Field(
-        default=300,
-        validation_alias="CACHE_TTL"
-    )
 
     @property
     def db_async_url(self) -> str:
@@ -70,6 +60,8 @@ class Config(BaseSettings):
     def rabbitmq_url(self) -> str:
         return f"amqp://{self.rabbitmq_user}:{self.rabbitmq_password.get_secret_value()}@"\
             f"{self.rabbitmq_host}:{self.rabbitmq_port}/"
+
+
 
 
 settings = Config()  # type: ignore

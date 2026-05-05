@@ -134,6 +134,8 @@ services:
     restart: unless-stopped
     env_file: .env
     depends_on:
+      market-service:
+        condition: service_started
       timescaledb: { condition: service_healthy }
       redis: { condition: service_healthy }
     networks:
