@@ -98,7 +98,7 @@ class EVEBITDAModel(IValuationModel):
             reverse=True,
         )
         if len(quarterly) >= 4:
-            return sum(r.ebitda for r in quarterly[:4])
+            return sum(r.ebitda for r in quarterly[:4]) # type: ignore
         annual = [r for r in reports if r.period_type == "annual" and r.ebitda]
         if annual:
             return max(annual, key=lambda r: r.fiscal_year).ebitda

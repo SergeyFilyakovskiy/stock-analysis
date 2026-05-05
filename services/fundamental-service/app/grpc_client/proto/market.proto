@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package market;
+
+service MarketService {
+  rpc GetOHLCV (OHLCVRequest) returns (OHLCVResponse);
+  rpc GetLastPrice (LastPriceRequest) returns (LastPriceResponse);
+}
+
+message OHLCVRequest {
+  string symbol    = 1;
+  string timeframe = 2;  // "1D", "1H"
+  int32  limit     = 3;
+}
+
+message OHLCVCandle {
+  string timestamp = 1;
+  double open      = 2;
+  double high      = 3;
+  double low       = 4;
+  double close     = 5;
+  int64  volume    = 6;
+}
+
+message OHLCVResponse {
+  string         symbol  = 1;
+  repeated OHLCVCandle candles = 2;
+}
+
+message LastPriceRequest {
+  string symbol = 1;
+}
+
+message LastPriceResponse {
+  string symbol    = 1;
+  double price     = 2;
+  string timestamp = 3;
+}

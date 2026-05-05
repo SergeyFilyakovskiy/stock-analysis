@@ -73,7 +73,7 @@ class PERelativeModel(IValuationModel):
             reverse=True,
         )
         if len(quarterly) >= 4:
-            return sum(r.eps_diluted for r in quarterly[:4])
+            return sum(r.eps_diluted for r in quarterly[:4]) # type: ignore
         # Fallback: последний годовой
         annual = [r for r in reports if r.period_type == "annual" and r.eps_diluted]
         if annual:

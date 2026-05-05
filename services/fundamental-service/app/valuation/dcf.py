@@ -76,7 +76,7 @@ class DCFModel(IValuationModel):
             first_fcf = annual[0].free_cash_flow
             years = annual[-1].fiscal_year - annual[0].fiscal_year
             if first_fcf and first_fcf > 0 and years > 0:
-                growth = (last_fcf / first_fcf) ** (Decimal(1) / years) - Decimal(1)
+                growth = (last_fcf / first_fcf) ** (Decimal(1) / years) - Decimal(1) # type: ignore
                 growth = min(growth, Decimal("0.25"))  # cap 25%
             else:
                 growth = Decimal("0.05")
@@ -87,11 +87,11 @@ class DCFModel(IValuationModel):
         intrinsic = Decimal("0")
         fcf = last_fcf
         for t in range(1, self._n + 1):
-            fcf = fcf * (1 + growth)
+            fcf = fcf * (1 + growth) # type: ignore
             intrinsic += fcf / (1 + self._wacc) ** t
 
         # Терминальная стоимость
-        terminal_fcf = fcf * (1 + self._g)
+        terminal_fcf = fcf * (1 + self._g) # type: ignore
         terminal_value = terminal_fcf / (self._wacc - self._g)
         intrinsic += terminal_value / (1 + self._wacc) ** self._n
 
