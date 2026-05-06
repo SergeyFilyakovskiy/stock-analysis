@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package market;
+
+service MarketService {
+  rpc GetLastPriceBatch (GetLastPriceBatchRequest) returns (GetLastPriceBatchResponse);
+}
+
+message GetLastPriceBatchRequest {
+  repeated string tickers = 1;
+}
+
+message PriceItem {
+  string ticker  = 1;
+  string price   = 2;   // Decimal as string
+  string updated_at = 3;
+}
+
+message GetLastPriceBatchResponse {
+  repeated PriceItem prices = 1;
+}
