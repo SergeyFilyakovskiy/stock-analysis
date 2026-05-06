@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
@@ -111,7 +111,7 @@ class Portfolio:
             transaction_type="BUY",
             price=price,
             quantity=quantity,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         self._events.append(
             TransactionAdded(
@@ -155,7 +155,7 @@ class Portfolio:
             transaction_type="SELL",
             price=price,
             quantity=quantity,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         self._events.append(
             TransactionAdded(

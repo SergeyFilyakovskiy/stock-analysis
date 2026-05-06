@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -57,7 +57,7 @@ async def create_watchlist(
         id=uuid4(),
         user_id=user_id,
         name=body.name,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
     session.add(wl)
     await session.commit()
@@ -137,7 +137,7 @@ async def add_item(
     return WatchlistItemResponse(
         id=item_id,
         ticker=body.ticker.upper(),
-        added_at=datetime.utcnow(),
+        added_at=datetime.now(timezone.utc),
     )
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -67,7 +68,7 @@ async def create_alert(
         target_price=body.target_price,
         currency=body.currency,
         is_active=True,
-        created_at=__import__("datetime").datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
 

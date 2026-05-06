@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -62,7 +63,7 @@ async def add_transaction(
         price=body.price,
         quantity=body.quantity,
         currency=body.currency,
-        created_at=__import__("datetime").datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
 

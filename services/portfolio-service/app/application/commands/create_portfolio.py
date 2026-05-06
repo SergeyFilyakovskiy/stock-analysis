@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from app.domain.entities import Portfolio
@@ -24,7 +24,7 @@ class CreatePortfolioHandler:
             user_id=command.user_id,
             name=command.name,
             currency=command.currency.upper(),
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         domain_event = PortfolioCreated(
             portfolio_id=portfolio.id,

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select, update
@@ -26,6 +26,6 @@ class OutboxRepo:
         await self._session.execute(
             update(OutboxEventModel)
             .where(OutboxEventModel.id.in_(event_ids))
-            .values(sent_at=datetime.utcnow())
+            .values(sent_at=datetime.now(timezone.utc))
         )
         await self._session.commit()

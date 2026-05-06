@@ -10,7 +10,7 @@ from app.domain.events import AlertTriggered
 
 import json
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
