@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import datetime
 from decimal import Decimal
 
@@ -32,18 +33,23 @@ class MarketEventPublisher:
 
     async def publish_price_updated(
         self,
-        ticker: str,
-        price: Decimal,
+        ticker:    str,
+        price:     Decimal,
         timestamp: datetime,
     ) -> None:
+        event_id = str(uuid.uuid4())
         payload = json.dumps({
-            "ticker":    ticker,
+            "event_id":  event_id,
+            "event":     "price.updated",
+            "ticker":    ticker.upper(),
             "price":     str(price),
             "timestamp": timestamp.isoformat(),
+            "source":    "market-service",
         })
         await self._exchange.publish(
             aio_pika.Message(
                 body=payload.encode(),
+                message_id=event_id,
                 content_type="application/json",
             ),
             routing_key=f"price.updated.{ticker.upper()}",
