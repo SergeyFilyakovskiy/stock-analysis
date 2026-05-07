@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.infrastructure.cache.price_cache import PriceCache
 from app.infrastructure.cache.redis_client import get_redis
 from app.infrastructure.db.repositories.market_repo import MarketRepository
-from app.infrastructure.db.session import get_session
+from app.infrastructure.db.session import async_session_factory
 from app.infrastructure.external.alpha_vantage import AlphaVantageProvider
 from app.infrastructure.external.facade import MarketDataFacade
 from app.infrastructure.external.polygon import PolygonProvider
@@ -57,10 +57,8 @@ def get_publisher() -> MarketEventPublisher:
     return MarketEventPublisher()
 
 
-def get_repo(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> MarketRepository:
-    return MarketRepository(session)
+def get_repo() -> MarketRepository:
+    return MarketRepository(async_session_factory)
 
 
 # ─────────────────────────────────────────────

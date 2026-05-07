@@ -5,7 +5,6 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.v1.routers import api_router
 from app.core.config import settings
-from app.core.dependencies import get_ohlcv_handler, get_last_price_handler
 from app.infrastructure.cache.price_cache import PriceCache
 from app.infrastructure.cache.redis_client import get_redis, close_redis
 from app.infrastructure.db.session import engine, async_session_factory
@@ -17,10 +16,7 @@ from app.grpc.servicer import MarketServicer
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis = await get_redis()
-
-    async with async_session_factory() as session:
-        repo  = MarketRepository(session)
-        cache = PriceCache(redis)
+    cache = PriceCache(redis)
 
     from app.infrastructure.external.alpha_vantage import AlphaVantageProvider
     from app.infrastructure.external.polygon import PolygonProvider
@@ -32,10 +28,14 @@ async def lifespan(app: FastAPI):
     fallback = PolygonProvider(api_key=settings.POLYGON_KEY.get_secret_value())
     facade   = MarketDataFacade(cache=cache, primary=primary, fallback=fallback)
 
+    repo = MarketRepository(session_factory=async_session_factory)  # ← per-call sessions
+
     servicer = MarketServicer(
         get_ohlcv_handler=GetOHLCVHandler(repo=repo),
         get_last_price_handler=GetLastPriceHandler(
-            repo=repo, cache=cache, facade=facade
+            repo=repo,
+            cache=cache,
+            facade=facade,
         ),
     )
 
