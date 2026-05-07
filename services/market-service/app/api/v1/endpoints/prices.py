@@ -9,21 +9,24 @@ router = APIRouter(prefix="/securities", tags=["prices"])
 
 @router.get("/{ticker}/history", response_model=list[PriceBarResponse])
 async def get_price_history(
-    ticker:  str,
-    service: ServiceDep,
-    from_dt: datetime = Query(..., alias="from"),
-    to_dt:   datetime = Query(..., alias="to"),
+    ticker:   str,
+    service:  ServiceDep,
+    from_dt:  datetime = Query(..., alias="from"),
+    to_dt:    datetime = Query(..., alias="to"),
+    interval: str      = Query(default="1m"),
 ):
     try:
         result = await service.get_ohlcv(
             ticker=ticker,
             from_dt=from_dt,
             to_dt=to_dt,
-            interval="1m",
+            interval=interval,
         )
         return [PriceBarResponse(**vars(b)) for b in result.bars]
     except TickerNotFoundError:
         raise HTTPException(status_code=404, detail=f"Ticker '{ticker}' not found")
+    except InvalidIntervalError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/{ticker}/ohlcv", response_model=OHLCVResponse)

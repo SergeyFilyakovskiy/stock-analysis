@@ -68,7 +68,7 @@ class Role:
 
     def __post_init__(self):
         if self.value not in self.ALLOWED_ROLES:
-            raise ValueError("Invalid role: {self.value}. Allowed: {self.ALLOWED}")
+            raise ValueError(f"Invalid role: {self.value}. Allowed: {self.ALLOWED_ROLES}")
         
     def is_admin(self) -> bool:
         return self.value == self.ADMIN
@@ -93,7 +93,7 @@ class UserProfile:
     def update(self, **kwargs)-> None:
         for key, value in kwargs.items():
             if hasattr(self, key):
-                object.__setattr__(self, key, value)
+                setattr(self, key, value)
     
     @property
     def full_name(self) -> str | None:
