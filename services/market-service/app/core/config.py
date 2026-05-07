@@ -29,6 +29,9 @@ class Config(BaseSettings):
     rabbitmq_host: str = Field(validation_alias='RABBITMQ_HOST')
     rabbitmq_port: int = Field(validation_alias='RABBITMQ_PORT')
 
+    jwt_secret: SecretStr = Field(validation_alias='JWT_SECRET')
+    jwt_algorithm: str = Field(validation_alias='JWT_ALGORITHM')
+
     POLYGON_KEY: SecretStr = Field(validation_alias='POLYGON_KEY')
     ALPHA_VANTAGE_KEY: SecretStr = Field(validation_alias='ALPHA_VANTAGE_KEY')
 

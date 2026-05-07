@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import select, and_, text
+from sqlalchemy import select, and_, or_, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.domain.entities import Security, PriceBar, Dividend, MarketIndex
@@ -22,6 +22,7 @@ _INTERVAL_VIEW_MAP = {
     "1h":  "ohlcv_1h",
     "4h":  "ohlcv_1h",
     "1d":  "ohlcv_1d",
+    "1w":  "ohlcv_1d",
 }
 
 
@@ -83,7 +84,10 @@ class MarketRepository(IMarketRepository):
         async with self._session_factory() as session:
             stmt = select(SecurityModel).where(
                 SecurityModel.is_active.is_(True),
-                SecurityModel.name.ilike(f"%{query}%"),
+                or_(
+                    SecurityModel.ticker.ilike(f"%{query}%"),
+                    SecurityModel.name.ilike(f"%{query}%"),
+                ),
             )
             rows = await session.scalars(stmt)
             return [_to_security(r) for r in rows]

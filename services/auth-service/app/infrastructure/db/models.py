@@ -81,10 +81,10 @@ class UserORM(Base):
         cascade="all, delete-orphan"
     )
 
-    oauth_accounts: Mapped['OAuthAccountORM'] = relationship(
+    oauth_accounts: Mapped[list["OAuthAccountORM"]] = relationship(
         "OAuthAccountORM",
         back_populates="user",
-        uselist=False,
+        uselist=True,
         lazy="joined",
         cascade="all, delete-orphan"
         )

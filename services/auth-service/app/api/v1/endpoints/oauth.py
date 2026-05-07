@@ -30,7 +30,7 @@ def _resolve_provider(provider: str) -> IOAuthProvider:
 async def oauth_redirect(provider: str, request: Request):
     """Редирект пользователя на страницу логина провайдера"""
     oauth_provider = _resolve_provider(provider)
-    redirect_uri   = str(request.url_for("oauth_callback", provider=provider))
+    redirect_uri   = f"{str(request.base_url).rstrip('/')}/api/v1/oauth/{provider}/callback"
     return await oauth_provider.get_redirect_url(request, redirect_uri)
 
 

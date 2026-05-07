@@ -12,6 +12,7 @@ http:
       headers:
         accessControlAllowOriginList:
           - "https://app.localhost"
+          - "http://app.localhost"
         accessControlAllowMethods:
           - "GET"
           - "POST"
@@ -27,12 +28,13 @@ http:
     basic-auth:
       basicAuth:
         users:
+          # REQUIRED: Replace with a real htpasswd hash. Generate with: htpasswd -nB admin
           - "admin:$apr1$..."
 
     jwt-auth:
       forwardAuth:
-        address: "http://auth-service:8000/api/v1/auth/verify"
+        address: "http://auth-service:8000/api/v1/verify"
         authResponseHeaders:
-          - "X-User-ID"
+          - "X-User-Id"
           - "X-User-Role"
         trustForwardHeader: true

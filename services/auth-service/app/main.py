@@ -19,7 +19,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    root_path="/auth-service",
     version="0.1.0",
     title="Authentication Service",
     lifespan=lifespan,
