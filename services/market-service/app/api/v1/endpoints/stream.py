@@ -1,37 +1,14 @@
 import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
-from jose import jwt, exceptions as jose_exceptions
 
 from app.core.config import settings
 from app.infrastructure.cache.redis_client import get_redis
 
 router = APIRouter(prefix="/ws", tags=["stream"])
 
-
-def _validate_token(token: str | None) -> bool:
-    if not token:
-        return False
-    try:
-        payload = jwt.decode(
-            token,
-            settings.jwt_secret.get_secret_value(),
-            algorithms=[settings.jwt_algorithm],
-        )
-    except jose_exceptions.JWTError:
-        return False
-
-    if payload.get("type") != "access":
-        return False
-
-    return True
-
-
 @router.websocket("/stream/{ticker}")
 async def stream_ticker(ticker: str, websocket: WebSocket, token: str | None = None):
-    if not _validate_token(token):
-        await websocket.close(code=1008)
-        return
 
     await websocket.accept()
 
