@@ -1,6 +1,7 @@
 name: stock-analysis
 
 
+
 networks:
   public:
     driver: bridge
@@ -9,12 +10,14 @@ networks:
     internal: true
 
 
+
 volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
   prometheus_data:
   grafana_data:
+
 
 
 services:
@@ -36,16 +39,20 @@ services:
       - internal
 
 
+
 # ── FRONTEND ─────────────────────────────────────────────
   frontend:
     build: ./frontend
     restart: unless-stopped
     networks:
-       - public
+      - public
+      - internal
     labels:
-       - "traefik.enable=true"
-       - "traefik.http.routers.frontend.rule=Host(`app.localhost`)"
-       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_public"
+      - "traefik.http.routers.frontend.rule=Host(`app.localhost`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+
 
 
 # ── BACKEND SERVICES ─────────────────────────────────────
@@ -60,9 +67,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.auth.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/auth`)"
-      - "traefik.http.routers.auth.middlewares=rate-limit,cors-headers"
+      - "traefik.http.routers.auth.middlewares=rate-limit@file,cors-headers@file"
       - "traefik.http.services.auth.loadbalancer.server.port=8000"
+
 
 
   market-service:
@@ -81,11 +90,14 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.market.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/market`)"
-      - "traefik.http.routers.market.middlewares=rate-limit,cors-headers,jwt-auth"
+      - "traefik.http.routers.market.middlewares=rate-limit@file,cors-headers@file,jwt-auth@file"
       - "traefik.http.services.market.loadbalancer.server.port=8000"
 
-    # ─── Market Service migrate ──────────────────
+
+
+  # ─── Market Service migrate ──────────────────
   market-migrate:
     build: ./services/market-service
     command: alembic upgrade head
@@ -97,6 +109,7 @@ services:
       redis:       { condition: service_healthy }
     networks:
       - internal
+
 
 
   # ─── Market Service worker ───────────────────
@@ -114,6 +127,7 @@ services:
       - internal
 
 
+
   # ─── Market Service beat ─────────────────────
   market-beat:
     build: ./services/market-service
@@ -129,6 +143,7 @@ services:
       - internal
 
 
+
   technical-service:
     build: ./services/technical-service
     restart: unless-stopped
@@ -142,9 +157,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.technical.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/technical`)"
-      - "traefik.http.routers.technical.middlewares=rate-limit,cors-headers,jwt-auth"
+      - "traefik.http.routers.technical.middlewares=rate-limit@file,cors-headers@file,jwt-auth@file"
       - "traefik.http.services.technical.loadbalancer.server.port=8000"
+
 
 
   fundamental-service:
@@ -159,9 +176,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.fundamental.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/fundamental`)"
-      - "traefik.http.routers.fundamental.middlewares=rate-limit,cors-headers,jwt-auth"
+      - "traefik.http.routers.fundamental.middlewares=rate-limit@file,cors-headers@file,jwt-auth@file"
       - "traefik.http.services.fundamental.loadbalancer.server.port=8000"
+
 
 
   portfolio-service:
@@ -176,9 +195,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.portfolio.rule=Host(`api.localhost`) && PathPrefix(`/api/v1/portfolio`)"
-      - "traefik.http.routers.portfolio.middlewares=rate-limit,cors-headers,jwt-auth"
+      - "traefik.http.routers.portfolio.middlewares=rate-limit@file,cors-headers@file,jwt-auth@file"
       - "traefik.http.services.portfolio.loadbalancer.server.port=8000"
+
 
 
   notification-service:
@@ -192,9 +213,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.ws.rule=Host(`api.localhost`) && PathPrefix(`/ws`)"
-      - "traefik.http.routers.ws.middlewares=cors-headers"
+      - "traefik.http.routers.ws.middlewares=cors-headers@file"
       - "traefik.http.services.ws.loadbalancer.server.port=8000"
+
 
 
 # ── DATABASES ────────────────────────────────────────────
@@ -227,6 +250,7 @@ services:
           memory: 2G
 
 
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -251,6 +275,7 @@ services:
       retries: 5
 
 
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     command: >
@@ -265,6 +290,7 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
     healthcheck:
@@ -272,6 +298,7 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+
 
 
 # ── OBSERVABILITY ────────────────────────────────────────
@@ -287,6 +314,7 @@ services:
       redis: { condition: service_healthy }
 
 
+
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
     restart: unless-stopped
@@ -296,6 +324,7 @@ services:
       - internal
     depends_on:
       timescaledb: { condition: service_healthy }
+
 
 
   prometheus:
@@ -308,9 +337,11 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      - "traefik.http.routers.prometheus.middlewares=basic-auth"
+      - "traefik.http.routers.prometheus.middlewares=basic-auth@file"
+
 
 
   grafana:
@@ -328,5 +359,6 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=stock-analysis_internal"
       - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"

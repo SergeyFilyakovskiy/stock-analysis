@@ -11,3 +11,4 @@ tests/
 *.md
 .env
 .env.*
+.venv

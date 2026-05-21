@@ -29,7 +29,7 @@ http:
       basicAuth:
         users:
           # REQUIRED: Replace with a real htpasswd hash. Generate with: htpasswd -nB admin
-          - "admin:$apr1$..."
+          - "admin:$$2y$05$8EB70CNJpJLLvXCwjo3iMu.LIx1Als8GDMwnH.0GzaUgHXJpOK0U."
 
     jwt-auth:
       forwardAuth:
