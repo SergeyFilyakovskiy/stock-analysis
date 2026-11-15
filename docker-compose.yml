@@ -22,18 +22,23 @@ volumes:
 
 services:
 # ── API GATEWAY ──────────────────────────────────────────
+
   traefik:
-    image: traefik:v3.0
+    image: traefik:latest
     restart: unless-stopped
+
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ./traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./traefik/certs:/certificates:ro
+    #  - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+    # - ./traefik/dynamic:/etc/traefik/dynamic:ro
+    # - ./traefik/certs:/certificates:ro
+      - /home/sergey/Projects/stock-analysis/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /home/sergey/Projects/stock-analysis/traefik/dynamic:/etc/traefik/dynamic:ro
+      - /home/sergey/Projects/stock-analysis/traefik/certs:/certificates:ro
     networks:
       - public
       - internal
@@ -81,8 +86,6 @@ services:
     expose:
       - "50051"
     depends_on:
-      market-migrate:
-        condition: service_completed_successfully
       timescaledb: { condition: service_healthy }
       redis:       { condition: service_healthy }
       rabbitmq:    { condition: service_healthy }
@@ -96,22 +99,6 @@ services:
       - "traefik.http.services.market.loadbalancer.server.port=8000"
 
 
-
-  # ─── Market Service migrate ──────────────────
-  market-migrate:
-    build: ./services/market-service
-    command: alembic upgrade head
-    env_file: .env
-    restart: "no"
-    depends_on:
-      timescaledb: { condition: service_healthy }
-      rabbitmq:    { condition: service_healthy }
-      redis:       { condition: service_healthy }
-    networks:
-      - internal
-
-
-
   # ─── Market Service worker ───────────────────
   market-worker:
     build: ./services/market-service
@@ -119,8 +106,6 @@ services:
     env_file: .env
     restart: unless-stopped
     depends_on:
-      market-migrate:
-        condition: service_completed_successfully
       rabbitmq: { condition: service_healthy }
       redis:    { condition: service_healthy }
     networks:
